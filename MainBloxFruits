@@ -1,11 +1,22 @@
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+repeat wait() until game:IsLoaded()
+
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/main/main.lua"))()
 
 local Window = Fluent:CreateWindow({
     Title = "Lunix script",
-    SubTitle = "Blox Fruit",
-    TabWidth = 157,
-    Size = UDim2.fromOffset(450, 300),
-    Acrylic = true,
-    Theme = "Amethyst",
+    Size = UDim2.fromOffset(400, 300),
+    Theme = "Dark",
     MinimizeKey = Enum.KeyCode.End
+})
+
+local Tabs = {
+    Main0 = Window:AddTab({ Title = "Thông Tin" })
+}
+
+Tabs.Main0:AddButton({
+    Title = "Discord",
+    Description = "Lunix Community │ Hub",
+    Callback = function()
+        setclipboard("https://discord.gg/PqF8f3zSN")
+    end
 })
