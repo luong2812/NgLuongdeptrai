@@ -15,8 +15,10 @@ local Tabs = {
 
 Tabs.Main0:AddButton({
     Title = "Discord",
-    Description = "Lunix Community │ Hub",
+    Description = "Lunix Community | Hub",
     Callback = function()
-        setclipboard("https://discord.gg/PqF8f3zSN")
+        if setclipboard then
+            setclipboard("https://discord.gg/PqF8f3zSN")
+        end
     end
 })
