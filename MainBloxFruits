@@ -17,8 +17,18 @@ Tabs.Main0:AddButton({
     Title = "Discord",
     Description = "Lunix Community | Hub",
     Callback = function()
-        if setclipboard then
-            setclipboard("https://discord.gg/PqF8f3zSN")
-        end
+        -- chống crash hoàn toàn
+        pcall(function()
+            if setclipboard then
+                setclipboard("https://discord.gg/PqF8f3zSN")
+            end
+        end)
+
+        -- thông báo cho chắc
+        Fluent:Notify({
+            Title = "Lunix Hub",
+            Content = "Đã copy Discord (nếu executor hỗ trợ)",
+            Duration = 3
+        })
     end
 })
