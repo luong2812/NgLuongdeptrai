@@ -1,33 +1,458 @@
+local ScreenGui = Instance.new("ScreenGui")
+local ImageButton = Instance.new("ImageButton")
+local UICorner = Instance.new("UICorner")
+
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+ImageButton.Parent = ScreenGui
+ImageButton.BackgroundColor3 = Color3.fromRGB(90, 0, 180)
+ImageButton.BorderSizePixel = 0
+ImageButton.Position = UDim2.new(0.10615778, 0, 0.16217947, 0)
+ImageButton.Size = UDim2.new(0, 40, 0, 40)
+ImageButton.Draggable = true
+ImageButton.Image = "http://www.roblox.com/asset/?id=91636648121784"
+
+UICorner.CornerRadius = UDim.new(1, 10)
+UICorner.Parent = ImageButton
+
+ImageButton.MouseButton1Click:Connect(function()
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
+    task.wait(0.1)
+    game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.End, false, game)
+end)
+
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/refs/heads/main/main.lua"))()
 repeat wait() until game:IsLoaded()
 
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+-- Biến trạng thái
+local autoFarm = false
+local autoFruit = false
+local autoChest = false
+local autoQuest = false
+
 local Window = Fluent:CreateWindow({
-    Title = "Lunix script",
-    Size = UDim2.fromOffset(400, 300),
-    Theme = "Dark",
+    Title = "Lunix Hub Premium",
+    SubTitle = "Blox Fruits",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(560, 380),
+    Acrylic = true,
+    Theme = "Amethyst",
     MinimizeKey = Enum.KeyCode.End
 })
 
 local Tabs = {
-    Main0 = Window:AddTab({ Title = "Thông Tin" })
+    Status   = Window:AddTab({ Title = "Status",        Icon = "activity" }),
+    Farm     = Window:AddTab({ Title = "Farm Settings", Icon = "shovel" }),
+    Main     = Window:AddTab({ Title = "Main",          Icon = "home" }),
+    MultiFarm= Window:AddTab({ Title = "Multi Farm",    Icon = "layers" }),
+    Quests   = Window:AddTab({ Title = "Quests",        Icon = "scroll-text" }),
+    Items    = Window:AddTab({ Title = "Items",         Icon = "backpack" }),
+    Race     = Window:AddTab({ Title = "Race",          Icon = "flag" }),
+    SeaEvent = Window:AddTab({ Title = "Sea Event",     Icon = "anchor" }),
+    Raid     = Window:AddTab({ Title = "Raid",          Icon = "swords" }),
+    Misc     = Window:AddTab({ Title = "Linh Tinh",     Icon = "settings" }),
 }
 
-Tabs.Main0:AddButton({
-    Title = "Discord",
-    Description = "Lunix Community | Hub",
+-- ===== STATUS TAB =====
+Tabs.Status:AddParagraph({
+    Title = "Server Stats",
+    Content = "Server: " .. game.JobId:sub(1,8) .. "...\nPlayers: " .. #game.Players:GetPlayers() .. "/" .. game.Players.MaxPlayers
+})
+
+Tabs.Status:AddParagraph({
+    Title = "Local Stats",
+    Content = function()
+        local stats = player:FindFirstChild("leaderstats")
+        if stats then
+            local beli = stats:FindFirstChild("Beli") or stats:FindFirstChild("Money")
+            local level = stats:FindFirstChild("Level") or stats:FindFirstChild("Lv")
+            return "Level: " .. (level and level.Value or "N/A") .. "\nBeli: " .. (beli and beli.Value or "N/A")
+        end
+        return "Không tìm thấy stats"
+    end
+})
+
+Tabs.Status:AddButton({
+    Title = "Refresh Stats",
+    Description = "Cập nhật thông tin server và nhân vật",
     Callback = function()
-        -- chống crash hoàn toàn
-        pcall(function()
-            if setclipboard then
-                setclipboard("https://discord.gg/PqF8f3zSN")
+        Fluent:Notify({ Title = "Status", Content = "Players: " .. #game.Players:GetPlayers() .. "/" .. game.Players.MaxPlayers, Duration = 3 })
+    end
+})
+
+Tabs.Status:AddParagraph({
+    Title = "Discord",
+    Content = "Lunix Community Hub\ndiscord.gg/PqF8f3zSN"
+})
+
+-- ===== FARM SETTINGS TAB =====
+Tabs.Farm:AddToggle({
+    Title = "Auto Farm Enemy",
+    Description = "Tự động farm mob gần nhất",
+    Default = false,
+    Callback = function(val)
+        autoFarm = val
+        if autoFarm then
+            task.spawn(function()
+                while autoFarm do
+                    char = player.Character
+                    hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    for _, v in pairs(workspace:GetDescendants()) do
+                        if not autoFarm then break end
+                        if v:IsA("Model") and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
+                            local hum = v:FindFirstChild("Humanoid")
+                            if hum and hum.Health > 0 and v ~= char then
+                                if hrp then
+                                    hrp.CFrame = CFrame.new(v.HumanoidRootPart.Position + Vector3.new(0, 3, 0))
+                                end
+                                task.wait(0.1)
+                            end
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+Tabs.Farm:AddToggle({
+    Title = "Auto Quest",
+    Description = "Tự động nhận quest phù hợp level",
+    Default = false,
+    Callback = function(val)
+        autoQuest = val
+        task.spawn(function()
+            while autoQuest do
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("ProximityPrompt") and v.Parent.Name:find("Quest") then
+                        fireproximityprompt(v)
+                        task.wait(0.5)
+                    end
+                end
+                task.wait(2)
             end
         end)
+    end
+})
 
-        -- thông báo cho chắc
-        Fluent:Notify({
-            Title = "Lunix Hub",
-            Content = "Đã copy Discord (nếu executor hỗ trợ)",
-            Duration = 3
-        })
+Tabs.Farm:AddToggle({
+    Title = "Auto Collect Drop",
+    Description = "Tự động nhặt item rơi ra",
+    Default = false,
+    Callback = function(val)
+        task.spawn(function()
+            while val do
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("BasePart") and (v.Name == "Drop" or v.Name == "Loot") and hrp then
+                        hrp.CFrame = CFrame.new(v.Position + Vector3.new(0, 3, 0))
+                        task.wait(0.3)
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+})
+
+-- ===== MAIN TAB =====
+Tabs.Main:AddButton({
+    Title = "Teleport tới Boss",
+    Description = "Di chuyển đến boss gần nhất",
+    Callback = function()
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Model") and v.Name:find("Boss") and v:FindFirstChild("HumanoidRootPart") then
+                hrp.CFrame = CFrame.new(v.HumanoidRootPart.Position + Vector3.new(0, 5, 0))
+                Fluent:Notify({ Title = "Teleport", Content = "Đã đến boss: " .. v.Name, Duration = 2 })
+                break
+            end
+        end
+    end
+})
+
+Tabs.Main:AddButton({
+    Title = "Teleport tới NPC",
+    Description = "Di chuyển đến NPC gần nhất",
+    Callback = function()
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChildOfClass("BillboardGui") then
+                hrp.CFrame = CFrame.new(v.HumanoidRootPart.Position + Vector3.new(0, 3, 0))
+                Fluent:Notify({ Title = "Teleport", Content = "Đến NPC: " .. v.Name, Duration = 2 })
+                break
+            end
+        end
+    end
+})
+
+Tabs.Main:AddButton({
+    Title = "Copy Discord",
+    Description = "Copy link Discord Lunix Hub",
+    Callback = function()
+        setclipboard("https://discord.gg/PqF8f3zSN")
+        Fluent:Notify({ Title = "Đã copy!", Content = "discord.gg/PqF8f3zSN", Duration = 3 })
+    end
+})
+
+-- ===== MULTI FARM TAB =====
+Tabs.MultiFarm:AddToggle({
+    Title = "Auto Farm Fruit",
+    Description = "Tự động nhặt Devil Fruit trên map",
+    Default = false,
+    Callback = function(val)
+        autoFruit = val
+        task.spawn(function()
+            while autoFruit do
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if not autoFruit then break end
+                    if v:IsA("Model") and v.Name:find("Fruit") and hrp then
+                        hrp.CFrame = CFrame.new(v:GetPivot().Position + Vector3.new(0, 3, 0))
+                        task.wait(0.5)
+                        local pp = v:FindFirstChildOfClass("ProximityPrompt")
+                        if pp then fireproximityprompt(pp) end
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    end
+})
+
+Tabs.MultiFarm:AddToggle({
+    Title = "Auto Farm Chest",
+    Description = "Tự động farm rương trên map",
+    Default = false,
+    Callback = function(val)
+        autoChest = val
+        task.spawn(function()
+            while autoChest do
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if not autoChest then break end
+                    if (v.Name == "Chest" or v.Name == "Treasure") and v:IsA("Model") and hrp then
+                        local part = v:FindFirstChildOfClass("BasePart")
+                        if part then
+                            hrp.CFrame = CFrame.new(part.Position + Vector3.new(0, 3, 0))
+                            task.wait(0.4)
+                            local pp = v:FindFirstChildOfClass("ProximityPrompt")
+                            if pp then fireproximityprompt(pp) end
+                            task.wait(0.4)
+                        end
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    end
+})
+
+Tabs.MultiFarm:AddToggle({
+    Title = "Auto Mastery",
+    Description = "Farm mastery vũ khí tự động",
+    Default = false,
+    Callback = function(val)
+        task.spawn(function()
+            while val do
+                char = player.Character
+                hrp = char and char:FindFirstChild("HumanoidRootPart")
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if not val then break end
+                    if v:IsA("Model") and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v ~= char then
+                        local hum = v:FindFirstChild("Humanoid")
+                        if hum and hum.Health > 0 and hrp then
+                            hrp.CFrame = CFrame.new(v.HumanoidRootPart.Position + Vector3.new(3, 3, 3))
+                        end
+                        task.wait(0.15)
+                    end
+                end
+                task.wait(0.15)
+            end
+        end)
+    end
+})
+
+-- ===== QUESTS TAB =====
+Tabs.Quests:AddButton({
+    Title = "Auto Accept Quest",
+    Description = "Tự động nhận quest gần nhất",
+    Callback = function()
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("ProximityPrompt") and v.Parent.Name:find("Quest") then
+                fireproximityprompt(v)
+                Fluent:Notify({ Title = "Quest", Content = "Đã nhận quest!", Duration = 2 })
+                break
+            end
+        end
+    end
+})
+
+Tabs.Quests:AddParagraph({
+    Title = "Hướng dẫn",
+    Content = "Bật Auto Quest ở tab Farm Settings để tự động nhận và hoàn thành quest liên tục."
+})
+
+-- ===== ITEMS TAB =====
+Tabs.Items:AddButton({
+    Title = "Drop All Items",
+    Description = "Bỏ tất cả item trong tay",
+    Callback = function()
+        for _, tool in pairs(char:GetChildren()) do
+            if tool:IsA("Tool") then
+                tool.Parent = player.Backpack
+            end
+        end
+        Fluent:Notify({ Title = "Items", Content = "Đã cất hết item!", Duration = 2 })
+    end
+})
+
+Tabs.Items:AddButton({
+    Title = "Equip All Tools",
+    Description = "Trang bị tất cả tool trong backpack",
+    Callback = function()
+        for _, tool in pairs(player.Backpack:GetChildren()) do
+            if tool:IsA("Tool") then
+                tool.Parent = char
+            end
+        end
+        Fluent:Notify({ Title = "Items", Content = "Đã trang bị hết!", Duration = 2 })
+    end
+})
+
+-- ===== RACE TAB =====
+Tabs.Race:AddParagraph({
+    Title = "Race Info",
+    Content = "Chức năng Race đang được phát triển.\nSẽ có trong phiên bản tiếp theo!"
+})
+
+-- ===== SEA EVENT TAB =====
+Tabs.SeaEvent:AddButton({
+    Title = "Teleport tới Sea Event",
+    Description = "Di chuyển đến sự kiện trên biển",
+    Callback = function()
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v.Name:find("SeaEvent") or v.Name:find("Sea_Event") then
+                if v:IsA("BasePart") and hrp then
+                    hrp.CFrame = CFrame.new(v.Position + Vector3.new(0, 5, 0))
+                    Fluent:Notify({ Title = "Sea Event", Content = "Đã teleport!", Duration = 2 })
+                    break
+                end
+            end
+        end
+    end
+})
+
+Tabs.SeaEvent:AddToggle({
+    Title = "Auto Sea Event",
+    Description = "Tự động tham gia sự kiện biển",
+    Default = false,
+    Callback = function(val)
+        task.spawn(function()
+            while val do
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v.Name:find("SeaEvent") and v:IsA("BasePart") and hrp then
+                        hrp.CFrame = CFrame.new(v.Position + Vector3.new(0, 5, 0))
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    end
+})
+
+-- ===== RAID TAB =====
+Tabs.Raid:AddToggle({
+    Title = "Auto Raid",
+    Description = "Tự động farm raid boss",
+    Default = false,
+    Callback = function(val)
+        task.spawn(function()
+            while val do
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v.Name:find("Raid") and v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and hrp then
+                        hrp.CFrame = CFrame.new(v.HumanoidRootPart.Position + Vector3.new(0, 5, 0))
+                    end
+                end
+                task.wait(0.3)
+            end
+        end)
+    end
+})
+
+Tabs.Raid:AddButton({
+    Title = "Start Raid",
+    Description = "Bắt đầu raid ngay lập tức",
+    Callback = function()
+        Fluent:Notify({ Title = "Raid", Content = "Đang tìm raid...", Duration = 2 })
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v:IsA("ProximityPrompt") and v.Parent.Name:find("Raid") then
+                fireproximityprompt(v)
+                break
+            end
+        end
+    end
+})
+
+-- ===== LINH TINH TAB =====
+Tabs.Misc:AddButton({
+    Title = "Anti AFK",
+    Description = "Không bị kick do AFK",
+    Callback = function()
+        task.spawn(function()
+            while task.wait(55) do
+                game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+                task.wait(0.1)
+                game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+            end
+        end)
+        Fluent:Notify({ Title = "Anti AFK", Content = "Đã bật!", Duration = 3 })
+    end
+})
+
+Tabs.Misc:AddButton({
+    Title = "Server Hop",
+    Description = "Chuyển sang server khác",
+    Callback = function()
+        local placeId = game.PlaceId
+        local ok, result = pcall(function()
+            return game:HttpGet("https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100")
+        end)
+        if ok then
+            local data = game:GetService("HttpService"):JSONDecode(result)
+            for _, server in pairs(data.data) do
+                if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                    game:GetService("TeleportService"):TeleportToPlaceInstance(placeId, server.id, player)
+                    return
+                end
+            end
+        end
+        Fluent:Notify({ Title = "Lỗi", Content = "Không tìm thấy server!", Duration = 3 })
+    end
+})
+
+Tabs.Misc:AddButton({
+    Title = "Rejoin",
+    Description = "Vào lại server hiện tại",
+    Callback = function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId, player)
+    end
+})
+
+Tabs.Misc:AddButton({
+    Title = "Reset Character",
+    Description = "Hồi sinh nhân vật",
+    Callback = function()
+        player.Character.Humanoid.Health = 0
+    end
+})
+
+Tabs.Misc:AddButton({
+    Title = "Copy Discord",
+    Description = "Copy link Discord Lunix Hub",
+    Callback = function()
+        setclipboard("https://discord.gg/PqF8f3zSN")
+        Fluent:Notify({ Title = "Copied!", Content = "discord.gg/PqF8f3zSN", Duration = 3 })
     end
 })
