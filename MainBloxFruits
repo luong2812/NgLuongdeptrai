@@ -11,7 +11,7 @@ ImageButton.BorderSizePixel = 0
 ImageButton.Position = UDim2.new(0.10615778, 0, 0.16217947, 0)
 ImageButton.Size = UDim2.new(0, 40, 0, 40)
 ImageButton.Draggable = true
-ImageButton.Image = "rbxassetid://91636648121784"
+ImageButton.Image = "http://www.roblox.com/asset/?id=91636648121784"
 
 UICorner.CornerRadius = UDim.new(1, 10)
 UICorner.Parent = ImageButton
@@ -29,7 +29,7 @@ local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 
--- Biến trạng thái
+-- Bien trang thai
 local autoFarm = false
 local autoFruit = false
 local autoChest = false
@@ -59,6 +59,16 @@ local Tabs = {
 }
 
 -- ===== STATUS TAB =====
+local stats = player:FindFirstChild("leaderstats")
+local levelText = "N/A"
+local beliText = "N/A"
+if stats then
+    local beli = stats:FindFirstChild("Beli") or stats:FindFirstChild("Money")
+    local level = stats:FindFirstChild("Level") or stats:FindFirstChild("Lv")
+    levelText = level and tostring(level.Value) or "N/A"
+    beliText = beli and tostring(beli.Value) or "N/A"
+end
+
 Tabs.Status:AddParagraph({
     Title = "Server Stats",
     Content = "Server: " .. game.JobId:sub(1,8) .. "...\nPlayers: " .. #game.Players:GetPlayers() .. "/" .. game.Players.MaxPlayers
@@ -66,20 +76,12 @@ Tabs.Status:AddParagraph({
 
 Tabs.Status:AddParagraph({
     Title = "Local Stats",
-    Content = function()
-        local stats = player:FindFirstChild("leaderstats")
-        if stats then
-            local beli = stats:FindFirstChild("Beli") or stats:FindFirstChild("Money")
-            local level = stats:FindFirstChild("Level") or stats:FindFirstChild("Lv")
-            return "Level: " .. (level and level.Value or "N/A") .. "\nBeli: " .. (beli and beli.Value or "N/A")
-        end
-        return "Không tìm thấy stats"
-    end
+    Content = "Level: " .. levelText .. "\nBeli: " .. beliText
 })
 
 Tabs.Status:AddButton({
     Title = "Refresh Stats",
-    Description = "Cập nhật thông tin server và nhân vật",
+    Description = "Cap nhat thong tin server va nhan vat",
     Callback = function()
         Fluent:Notify({ Title = "Status", Content = "Players: " .. #game.Players:GetPlayers() .. "/" .. game.Players.MaxPlayers, Duration = 3 })
     end
@@ -93,7 +95,7 @@ Tabs.Status:AddParagraph({
 -- ===== FARM SETTINGS TAB =====
 Tabs.Farm:AddToggle({
     Title = "Auto Farm Enemy",
-    Description = "Tự động farm mob gần nhất",
+    Description = "Tu dong farm mob gan nhat",
     Default = false,
     Callback = function(val)
         autoFarm = val
@@ -123,7 +125,7 @@ Tabs.Farm:AddToggle({
 
 Tabs.Farm:AddToggle({
     Title = "Auto Quest",
-    Description = "Tự động nhận quest phù hợp level",
+    Description = "Tu dong nhan quest phu hop level",
     Default = false,
     Callback = function(val)
         autoQuest = val
@@ -143,7 +145,7 @@ Tabs.Farm:AddToggle({
 
 Tabs.Farm:AddToggle({
     Title = "Auto Collect Drop",
-    Description = "Tự động nhặt item rơi ra",
+    Description = "Tu dong nhat item roi ra",
     Default = false,
     Callback = function(val)
         task.spawn(function()
@@ -162,13 +164,13 @@ Tabs.Farm:AddToggle({
 
 -- ===== MAIN TAB =====
 Tabs.Main:AddButton({
-    Title = "Teleport tới Boss",
-    Description = "Di chuyển đến boss gần nhất",
+    Title = "Teleport toi Boss",
+    Description = "Di chuyen den boss gan nhat",
     Callback = function()
         for _, v in pairs(workspace:GetDescendants()) do
             if v:IsA("Model") and v.Name:find("Boss") and v:FindFirstChild("HumanoidRootPart") then
                 hrp.CFrame = CFrame.new(v.HumanoidRootPart.Position + Vector3.new(0, 5, 0))
-                Fluent:Notify({ Title = "Teleport", Content = "Đã đến boss: " .. v.Name, Duration = 2 })
+                Fluent:Notify({ Title = "Teleport", Content = "Da den boss: " .. v.Name, Duration = 2 })
                 break
             end
         end
@@ -176,13 +178,13 @@ Tabs.Main:AddButton({
 })
 
 Tabs.Main:AddButton({
-    Title = "Teleport tới NPC",
-    Description = "Di chuyển đến NPC gần nhất",
+    Title = "Teleport toi NPC",
+    Description = "Di chuyen den NPC gan nhat",
     Callback = function()
         for _, v in pairs(workspace:GetDescendants()) do
             if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChildOfClass("BillboardGui") then
                 hrp.CFrame = CFrame.new(v.HumanoidRootPart.Position + Vector3.new(0, 3, 0))
-                Fluent:Notify({ Title = "Teleport", Content = "Đến NPC: " .. v.Name, Duration = 2 })
+                Fluent:Notify({ Title = "Teleport", Content = "Den NPC: " .. v.Name, Duration = 2 })
                 break
             end
         end
@@ -194,14 +196,14 @@ Tabs.Main:AddButton({
     Description = "Copy link Discord Lunix Hub",
     Callback = function()
         setclipboard("https://discord.gg/PqF8f3zSN")
-        Fluent:Notify({ Title = "Đã copy!", Content = "discord.gg/PqF8f3zSN", Duration = 3 })
+        Fluent:Notify({ Title = "Da copy!", Content = "discord.gg/PqF8f3zSN", Duration = 3 })
     end
 })
 
 -- ===== MULTI FARM TAB =====
 Tabs.MultiFarm:AddToggle({
     Title = "Auto Farm Fruit",
-    Description = "Tự động nhặt Devil Fruit trên map",
+    Description = "Tu dong nhat Devil Fruit tren map",
     Default = false,
     Callback = function(val)
         autoFruit = val
@@ -224,7 +226,7 @@ Tabs.MultiFarm:AddToggle({
 
 Tabs.MultiFarm:AddToggle({
     Title = "Auto Farm Chest",
-    Description = "Tự động farm rương trên map",
+    Description = "Tu dong farm ruong tren map",
     Default = false,
     Callback = function(val)
         autoChest = val
@@ -251,7 +253,7 @@ Tabs.MultiFarm:AddToggle({
 
 Tabs.MultiFarm:AddToggle({
     Title = "Auto Mastery",
-    Description = "Farm mastery vũ khí tự động",
+    Description = "Farm mastery vu khi tu dong",
     Default = false,
     Callback = function(val)
         task.spawn(function()
@@ -277,12 +279,12 @@ Tabs.MultiFarm:AddToggle({
 -- ===== QUESTS TAB =====
 Tabs.Quests:AddButton({
     Title = "Auto Accept Quest",
-    Description = "Tự động nhận quest gần nhất",
+    Description = "Tu dong nhan quest gan nhat",
     Callback = function()
         for _, v in pairs(workspace:GetDescendants()) do
             if v:IsA("ProximityPrompt") and v.Parent.Name:find("Quest") then
                 fireproximityprompt(v)
-                Fluent:Notify({ Title = "Quest", Content = "Đã nhận quest!", Duration = 2 })
+                Fluent:Notify({ Title = "Quest", Content = "Da nhan quest!", Duration = 2 })
                 break
             end
         end
@@ -290,53 +292,53 @@ Tabs.Quests:AddButton({
 })
 
 Tabs.Quests:AddParagraph({
-    Title = "Hướng dẫn",
-    Content = "Bật Auto Quest ở tab Farm Settings để tự động nhận và hoàn thành quest liên tục."
+    Title = "Huong dan",
+    Content = "Bat Auto Quest o tab Farm Settings de tu dong nhan va hoan thanh quest lien tuc."
 })
 
 -- ===== ITEMS TAB =====
 Tabs.Items:AddButton({
     Title = "Drop All Items",
-    Description = "Bỏ tất cả item trong tay",
+    Description = "Bo tat ca item trong tay",
     Callback = function()
         for _, tool in pairs(char:GetChildren()) do
             if tool:IsA("Tool") then
                 tool.Parent = player.Backpack
             end
         end
-        Fluent:Notify({ Title = "Items", Content = "Đã cất hết item!", Duration = 2 })
+        Fluent:Notify({ Title = "Items", Content = "Da cat het item!", Duration = 2 })
     end
 })
 
 Tabs.Items:AddButton({
     Title = "Equip All Tools",
-    Description = "Trang bị tất cả tool trong backpack",
+    Description = "Trang bi tat ca tool trong backpack",
     Callback = function()
         for _, tool in pairs(player.Backpack:GetChildren()) do
             if tool:IsA("Tool") then
                 tool.Parent = char
             end
         end
-        Fluent:Notify({ Title = "Items", Content = "Đã trang bị hết!", Duration = 2 })
+        Fluent:Notify({ Title = "Items", Content = "Da trang bi het!", Duration = 2 })
     end
 })
 
 -- ===== RACE TAB =====
 Tabs.Race:AddParagraph({
     Title = "Race Info",
-    Content = "Chức năng Race đang được phát triển.\nSẽ có trong phiên bản tiếp theo!"
+    Content = "Chuc nang Race dang duoc phat trien.\nSe co trong phien ban tiep theo!"
 })
 
 -- ===== SEA EVENT TAB =====
 Tabs.SeaEvent:AddButton({
-    Title = "Teleport tới Sea Event",
-    Description = "Di chuyển đến sự kiện trên biển",
+    Title = "Teleport toi Sea Event",
+    Description = "Di chuyen den su kien tren bien",
     Callback = function()
         for _, v in pairs(workspace:GetDescendants()) do
             if v.Name:find("SeaEvent") or v.Name:find("Sea_Event") then
                 if v:IsA("BasePart") and hrp then
                     hrp.CFrame = CFrame.new(v.Position + Vector3.new(0, 5, 0))
-                    Fluent:Notify({ Title = "Sea Event", Content = "Đã teleport!", Duration = 2 })
+                    Fluent:Notify({ Title = "Sea Event", Content = "Da teleport!", Duration = 2 })
                     break
                 end
             end
@@ -346,7 +348,7 @@ Tabs.SeaEvent:AddButton({
 
 Tabs.SeaEvent:AddToggle({
     Title = "Auto Sea Event",
-    Description = "Tự động tham gia sự kiện biển",
+    Description = "Tu dong tham gia su kien bien",
     Default = false,
     Callback = function(val)
         task.spawn(function()
@@ -365,7 +367,7 @@ Tabs.SeaEvent:AddToggle({
 -- ===== RAID TAB =====
 Tabs.Raid:AddToggle({
     Title = "Auto Raid",
-    Description = "Tự động farm raid boss",
+    Description = "Tu dong farm raid boss",
     Default = false,
     Callback = function(val)
         task.spawn(function()
@@ -383,9 +385,9 @@ Tabs.Raid:AddToggle({
 
 Tabs.Raid:AddButton({
     Title = "Start Raid",
-    Description = "Bắt đầu raid ngay lập tức",
+    Description = "Bat dau raid ngay lap tuc",
     Callback = function()
-        Fluent:Notify({ Title = "Raid", Content = "Đang tìm raid...", Duration = 2 })
+        Fluent:Notify({ Title = "Raid", Content = "Dang tim raid...", Duration = 2 })
         for _, v in pairs(workspace:GetDescendants()) do
             if v:IsA("ProximityPrompt") and v.Parent.Name:find("Raid") then
                 fireproximityprompt(v)
@@ -398,7 +400,7 @@ Tabs.Raid:AddButton({
 -- ===== LINH TINH TAB =====
 Tabs.Misc:AddButton({
     Title = "Anti AFK",
-    Description = "Không bị kick do AFK",
+    Description = "Khong bi kick do AFK",
     Callback = function()
         task.spawn(function()
             while task.wait(55) do
@@ -407,13 +409,13 @@ Tabs.Misc:AddButton({
                 game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.Space, false, game)
             end
         end)
-        Fluent:Notify({ Title = "Anti AFK", Content = "Đã bật!", Duration = 3 })
+        Fluent:Notify({ Title = "Anti AFK", Content = "Da bat!", Duration = 3 })
     end
 })
 
 Tabs.Misc:AddButton({
     Title = "Server Hop",
-    Description = "Chuyển sang server khác",
+    Description = "Chuyen sang server khac",
     Callback = function()
         local placeId = game.PlaceId
         local ok, result = pcall(function()
@@ -428,13 +430,13 @@ Tabs.Misc:AddButton({
                 end
             end
         end
-        Fluent:Notify({ Title = "Lỗi", Content = "Không tìm thấy server!", Duration = 3 })
+        Fluent:Notify({ Title = "Loi", Content = "Khong tim thay server!", Duration = 3 })
     end
 })
 
 Tabs.Misc:AddButton({
     Title = "Rejoin",
-    Description = "Vào lại server hiện tại",
+    Description = "Vao lai server hien tai",
     Callback = function()
         game:GetService("TeleportService"):Teleport(game.PlaceId, player)
     end
@@ -442,7 +444,7 @@ Tabs.Misc:AddButton({
 
 Tabs.Misc:AddButton({
     Title = "Reset Character",
-    Description = "Hồi sinh nhân vật",
+    Description = "Hoi sinh nhan vat",
     Callback = function()
         player.Character.Humanoid.Health = 0
     end
